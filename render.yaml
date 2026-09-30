@@ -35,11 +35,9 @@ services:
         fromDatabase:
           name: suqilic-db
           property: connectionString
+      # Public hosts are set explicitly: a blueprint's fromService 'host' is the internal name.
       - key: FRONTEND_HOST
-        fromService:
-          type: web
-          name: suqilic
-          property: host
+        value: suqilic.onrender.com
       - key: MEDIA_STORAGE
         value: db
       - key: NOINDEX
@@ -64,10 +62,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_HOST
-        fromService:
-          type: web
-          name: suqilic-api
-          property: host
+        value: suqilic-api.onrender.com
       - key: VITE_ADMIN_PATH
         value: suqilic-control
     headers:
