@@ -118,9 +118,8 @@ POST   /admin/<resource>/bulk-delete/   {ids: []}
 |---|---|
 | `/admin/products/` | Filters: `status`, `collection`, `tag`, `low_stock`. Search: title, sku. `POST /{id}/duplicate/` · `POST /bulk-status/ {ids, status}` |
 | `/admin/products/{id}/images/` | Nested CRUD. Upload with `multipart/form-data`. `POST /reorder/ {ids:[...]}` · `POST /{img_id}/set-main/` |
-| `/admin/products/{id}/options/` | Nested CRUD for options and their values |
-| `/admin/products/{id}/variants/` | Nested CRUD. `POST /generate/` creates every combination of option values |
-| `/admin/variants/{id}/stock/` | PATCH `{stock_quantity}` for quick inline edits |
+| `/admin/products/{id}/options/` | Nested CRUD. Write `{name, values: ["S", "L"]}`; values are synced |
+| `/admin/products/{id}/variants/` | Nested CRUD. `POST /generate/` creates every combination of option values. Inline stock/price edits use `PATCH /{variant_id}/` |
 | `/admin/collections/` | Banner upload. `GET/POST /{id}/products/` to list or assign products · `POST /{id}/products/reorder/ {product_ids:[...]}` |
 | `/admin/tags/` | CRUD |
 
@@ -137,14 +136,14 @@ POST   /admin/<resource>/bulk-delete/   {ids: []}
 ### 7.4 Orders & customers
 | Resource | Extra routes / notes |
 |---|---|
-| `/admin/orders/` | Filters: `status`, `created_at__gte/lte`. Search: order_number, name, email, phone. No POST (orders come from the storefront). `POST /{id}/status/ {status, note}` logs a status-history entry and optionally emails the customer · `PATCH /{id}/` for `internal_note` · `GET /export/?format=csv` · `GET /{id}/print/` |
+| `/admin/orders/` | Filters: `status`, `created_at__gte/lte`. Search: order_number, name, email, phone. No POST (orders come from the storefront). `POST /{id}/status/ {status, note}` logs a status-history entry and optionally emails the customer · `PATCH /{id}/` for `internal_note` · `GET /export/` (CSV; honours list filters). Printing is done client-side from the detail view |
 | `/admin/customers/` | Read and PATCH only (`is_active`). `GET /{id}/orders/` |
 
 ### 7.5 Inbox & marketing
 | Resource | Extra routes / notes |
 |---|---|
 | `/admin/messages/` | Read and delete. `POST /{id}/mark-read/` · `POST /bulk-mark-read/` |
-| `/admin/subscribers/` | List and delete. `GET /export/?format=csv` |
+| `/admin/subscribers/` | List and delete. `GET /export/` (CSV) |
 
 ### 7.6 Staff (👑 superuser only)
 | Resource | Extra routes / notes |
