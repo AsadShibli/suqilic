@@ -35,6 +35,16 @@ cd backend && .venv/Scripts/python -m pytest
 cd frontend && npm run build   # type-check + production build
 ```
 
+## Staging on Render (free tier)
+
+[`render.yaml`](render.yaml) defines Postgres, the Django API and the static storefront. Media is stored in Postgres (`MEDIA_STORAGE=db`) since free web services have no persistent disk, and uploads are shrunk to WebP. On first boot `seed_demo` loads the bundled demo catalog from `backend/seed/`. Staging sends `noindex` everywhere.
+
+1. Render Dashboard → **New → Blueprint** → pick this repo.
+2. Enter `DJANGO_SUPERUSER_EMAIL` / `DJANGO_SUPERUSER_PASSWORD` when prompted (first admin account).
+3. Deploy. Store: `https://suqilic.onrender.com`, admin: `/suqilic-control`.
+
+Free web services sleep after ~15 min idle (the first request then takes ~1 minute), and free Postgres expires 30 days after creation unless upgraded. To refresh the bundle after changing the local catalog: `python manage.py optimize_media && python manage.py seed_demo --export`.
+
 ## Production (Docker Compose)
 
 ```bash

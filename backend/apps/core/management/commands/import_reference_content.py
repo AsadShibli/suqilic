@@ -198,7 +198,8 @@ class Command(BaseCommand):
             file = self.download(img["src"])
             if file:
                 image = ProductImage(product=product, alt_text=product.title[:200], position=i, is_main=i == 0)
-                image.image.save(f"{product.slug}-{i}{Path(file.name).suffix or '.jpg'}", file, save=False)
+                file.name = f"{product.slug}-{i}{Path(file.name).suffix or '.jpg'}"
+                image.image = file  # uncommitted: optimized to WebP on save
                 image.save()
 
     # --- Site content -----------------------------------------------------------------------------
@@ -241,7 +242,7 @@ class Command(BaseCommand):
                 section=hero, heading="SHOP ALL CARD SKiNS", subheading="Skins for the cards you actually use.",
                 button_text="Shop all Card Skins", button_link="/collections/card-skins",
             )
-            banner.image_desktop.save(Path(banner_source.image.name).name, ContentFile(banner_source.image.read()), save=False)
+            banner.image_desktop = ContentFile(banner_source.image.read(), name=Path(banner_source.image.name).name)
             banner.save()
         for i, (title, slug) in enumerate(HOME_CAROUSELS, start=1):
             collection = Collection.objects.filter(slug=slug).first()

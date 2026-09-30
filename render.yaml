@@ -1,0 +1,83 @@
+# Render Blueprint: private staging for Suqilic (all free tier).
+#   Postgres (free) · Django API (free web service) · React storefront (static site)
+# Media is stored in Postgres (MEDIA_STORAGE=db) because free web services have no persistent disk.
+# On first boot the bundled demo catalog (backend/seed) is loaded; later boots skip it.
+
+databases:
+  - name: suqilic-db
+    plan: free
+    region: singapore
+    databaseName: suqilic
+    user: suqilic
+
+services:
+  - type: web
+    name: suqilic-api
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: >-
+      python manage.py migrate --noinput &&
+      python manage.py seed_demo &&
+      (python manage.py createsuperuser --noinput || true) &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --access-logfile -
+    healthCheckPath: /robots.txt
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: suqilic-db
+          property: connectionString
+      - key: FRONTEND_HOST
+        fromService:
+          type: web
+          name: suqilic
+          property: host
+      - key: MEDIA_STORAGE
+        value: db
+      - key: NOINDEX
+        value: "true"
+      - key: SECURE_SSL_REDIRECT # Render already redirects HTTP→HTTPS at the edge
+        value: "false"
+      - key: ADMIN_URL_PATH
+        value: suqilic-control
+      - key: DJANGO_ADMIN_PATH
+        value: django-admin
+      # First staff account, created on boot if missing. Set these yourself in the dashboard.
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+
+  - type: web
+    name: suqilic
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_HOST
+        fromService:
+          type: web
+          name: suqilic-api
+          property: host
+      - key: VITE_ADMIN_PATH
+        value: suqilic-control
+    headers:
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

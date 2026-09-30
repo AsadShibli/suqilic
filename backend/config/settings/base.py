@@ -16,10 +16,16 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+if RENDER_HOST := env("RENDER_EXTERNAL_HOSTNAME", default=""):
+    ALLOWED_HOSTS.append(RENDER_HOST)
+# Staging: ask crawlers not to index anything (robots.txt + X-Robots-Tag).
+NOINDEX = env.bool("NOINDEX", default=False)
 
 ADMIN_URL_PATH = env("ADMIN_URL_PATH", default="suqilic-control").strip("/")
 DJANGO_ADMIN_PATH = env("DJANGO_ADMIN_PATH", default="django-admin").strip("/")
-FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+# Public storefront origin; FRONTEND_HOST (bare host, e.g. from a Render blueprint) implies https.
+FRONTEND_HOST = env("FRONTEND_HOST", default="")
+FRONTEND_URL = env("FRONTEND_URL", default=f"https://{FRONTEND_HOST}" if FRONTEND_HOST else "http://localhost:5173")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -51,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.middleware.noindex_middleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -92,8 +99,14 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# "db" stores media in Postgres (hosts without a persistent disk); "filesystem" uses MEDIA_ROOT.
+MEDIA_STORAGE = env("MEDIA_STORAGE", default="filesystem")
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {
+        "BACKEND": "apps.core.storage.DatabaseStorage"
+        if MEDIA_STORAGE == "db"
+        else "django.core.files.storage.FileSystemStorage"
+    },
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
@@ -101,6 +114,7 @@ MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[FRONTEND_URL])
+CORS_ALLOWED_ORIGIN_REGEXES = env.list("CORS_ALLOWED_ORIGIN_REGEXES", default=[])
 CORS_ALLOW_HEADERS = (
     "accept", "authorization", "content-type", "origin", "x-csrftoken", "x-requested-with", "x-cart-id",
 )

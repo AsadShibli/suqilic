@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.core.images import optimize_uploads
 from apps.core.validators import IMAGE_VALIDATORS
 
 
@@ -46,3 +47,7 @@ class HeroBanner(models.Model):
 
     def __str__(self):
         return self.heading or f"Banner #{self.pk}"
+
+    def save(self, *args, **kwargs):
+        optimize_uploads(self, "image_desktop", "image_mobile")
+        super().save(*args, **kwargs)

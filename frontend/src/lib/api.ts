@@ -3,7 +3,12 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuth } from '@/stores/auth'
 import { useCartUi } from '@/stores/cart'
 
-export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '/api/v1' })
+const { VITE_API_URL, VITE_API_HOST } = import.meta.env
+
+/** Same-origin '/api/v1' in dev (Vite proxy); an explicit URL or host when the API lives elsewhere. */
+export const api = axios.create({
+  baseURL: VITE_API_URL || (VITE_API_HOST ? `https://${VITE_API_HOST}/api/v1` : '/api/v1'),
+})
 
 api.interceptors.request.use((config) => {
   const { access } = useAuth.getState()

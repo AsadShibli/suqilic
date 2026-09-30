@@ -47,6 +47,8 @@ class PageSitemap(FrontendSitemap):
 
 
 def robots_txt(request):
+    if settings.NOINDEX:
+        return HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")
     lines = [
         "User-agent: *",
         f"Disallow: /{settings.ADMIN_URL_PATH}/",

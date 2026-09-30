@@ -3,6 +3,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from apps.core.media_views import serve_media
+
 api_v1 = [
     path("auth/", include("apps.accounts.urls.auth")),
     path("me/", include("apps.accounts.urls.me")),
@@ -19,6 +21,9 @@ urlpatterns = [
     path("", include("apps.core.seo_urls")),
 ]
 
+if settings.MEDIA_STORAGE == "db":
+    urlpatterns.append(path("media/<path:path>", serve_media, name="media"))
+
 if settings.DEBUG:
     from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -26,7 +31,8 @@ if settings.DEBUG:
         path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
         path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
     ]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    if settings.MEDIA_STORAGE != "db":
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = "Suqilic Admin"
 admin.site.site_title = "Suqilic Admin"

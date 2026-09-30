@@ -46,7 +46,7 @@ export function RichText({ html, className }: { html: string; className?: string
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-4 py-20 text-center">
-      <p className="font-display text-3xl tracking-wide uppercase">{title}</p>
+      <p className="font-display text-3xl">{title}</p>
       {children}
     </div>
   )

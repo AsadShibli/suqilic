@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Min, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
 
-from apps.core.images import make_thumbnail
+from apps.core.images import make_thumbnail, optimize_uploads
 from apps.core.models import TimeStampedModel
 from apps.core.validators import IMAGE_VALIDATORS
 
@@ -30,6 +30,10 @@ class Collection(TimeStampedModel, SeoFields):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        optimize_uploads(self, "banner_image")
+        super().save(*args, **kwargs)
 
 
 class Tag(models.Model):
@@ -109,11 +113,7 @@ class ProductImage(models.Model):
         return f"{self.product} image #{self.pk}"
 
     def save(self, *args, **kwargs):
-        image_changed = self.pk is None or not self.thumbnail
-        if not image_changed:
-            previous = ProductImage.objects.filter(pk=self.pk).values_list("image", flat=True).first()
-            image_changed = previous != self.image.name
-        if image_changed and self.image:
+        if optimize_uploads(self, "image") or (self.image and not self.thumbnail):
             thumb = make_thumbnail(self.image)
             self.thumbnail.save(thumb.name, thumb, save=False)
         if self.is_main:
