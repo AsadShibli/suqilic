@@ -39,7 +39,7 @@ The logo shows white **blackletter / gothic** lettering ("Suqilic") with sharp f
 The site is dark-only by default to match the logo. A light theme is out of scope.
 
 ### 2.2 Typography
-- **Display / headings:** a blackletter font such as *UnifrakturCook* or *UnifrakturMaguntia* (Google Fonts). Use it only for section titles like "TRENDING" and "BUMPER STICKERS", never for body text.
+- **Display / headings:** *Anton* (bold condensed sans, uppercase) for readability. The blackletter look lives only in the logo.
 - **Body / UI:** a clean sans-serif such as *Inter* or *Manrope*.
 - Keep the reference site's quirky casing style (for example "TRENDiNG", with lowercase "i") as an option. It is stored as plain text, so the admin controls it.
 

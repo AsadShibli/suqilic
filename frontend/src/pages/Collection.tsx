@@ -22,7 +22,7 @@ export default function Collection() {
         {isLoading ? (
           <Skeleton className="mx-auto h-10 w-64" />
         ) : (
-          <h1 className="font-display text-4xl md:text-6xl">{collection?.title}</h1>
+          <h1 className="font-display text-4xl tracking-wide uppercase md:text-6xl">{collection?.title}</h1>
         )}
         {collection?.description && (
           <RichText html={collection.description} className="mx-auto mt-4 max-w-2xl text-muted" />

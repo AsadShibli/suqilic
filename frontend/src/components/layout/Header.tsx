@@ -22,7 +22,7 @@ export function Header() {
   return (
     <>
       {settings?.announcement_active && settings.announcement_text && (
-        <div className="bg-accent py-2 text-center text-xs font-semibold tracking-widest text-bg uppercase">
+        <div className="bg-accent py-2 text-center text-sm font-semibold tracking-wide text-bg uppercase">
           {settings.announcement_link ? (
             <Link to={settings.announcement_link}>{settings.announcement_text}</Link>
           ) : (
@@ -64,7 +64,7 @@ export function Header() {
                 <NavLink
                   to={item.url}
                   className={({ isActive }) =>
-                    `text-xs font-semibold tracking-widest uppercase transition-colors hover:text-accent ${isActive ? 'text-accent underline underline-offset-8' : 'text-muted'}`
+                    `text-sm font-semibold tracking-wide uppercase transition-colors hover:text-accent ${isActive ? 'text-accent underline underline-offset-8' : 'text-text/80'}`
                   }
                 >
                   {item.label}
