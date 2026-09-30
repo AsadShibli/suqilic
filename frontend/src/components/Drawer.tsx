@@ -25,7 +25,7 @@ export function Drawer({ open, onClose, title, side = 'right', children, footer 
   }, [open, onClose])
 
   return createPortal(
-    <div className={clsx('fixed inset-0 z-50', !open && 'pointer-events-none')} aria-hidden={!open}>
+    <div className={clsx('fixed inset-0 z-50 overflow-hidden', !open && 'pointer-events-none')} aria-hidden={!open}>
       <div
         className={clsx('absolute inset-0 bg-black/70 transition-opacity', open ? 'opacity-100' : 'opacity-0')}
         onClick={onClose}
