@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 export function PageHeader({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <h1 className="font-display text-3xl">{title}</h1>
+      <h1 className="text-2xl font-bold">{title}</h1>
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </div>
   )
