@@ -1,0 +1,272 @@
+erDiagram
+    %% ============ accounts ============
+    USER {
+        int id PK
+        string email UK
+        string password
+        string first_name
+        string last_name
+        string phone
+        bool is_active
+        bool is_staff
+        bool is_superuser
+        datetime date_joined
+    }
+    ADDRESS {
+        int id PK
+        int user_id FK
+        string full_name
+        string phone
+        string line1
+        string line2
+        string city
+        string region
+        string postal_code
+        string country
+        bool is_default
+    }
+
+    %% ============ catalog ============
+    COLLECTION {
+        int id PK
+        string title
+        string slug UK
+        text description
+        string banner_image
+        int sort_order
+        bool is_active
+        string seo_title
+        string seo_description
+        datetime created_at
+        datetime updated_at
+    }
+    PRODUCT {
+        int id PK
+        string title
+        string slug UK
+        text description
+        decimal base_price
+        decimal compare_at_price
+        string status "active|draft|archived"
+        string video_url
+        string seo_title
+        string seo_description
+        datetime created_at
+        datetime updated_at
+    }
+    COLLECTION_PRODUCT {
+        int id PK
+        int collection_id FK
+        int product_id FK
+        int position
+    }
+    TAG {
+        int id PK
+        string name UK
+        string slug UK
+    }
+    PRODUCT_TAG {
+        int product_id FK
+        int tag_id FK
+    }
+    PRODUCT_IMAGE {
+        int id PK
+        int product_id FK
+        string image
+        string thumbnail
+        string alt_text
+        int position
+        bool is_main
+    }
+    PRODUCT_OPTION {
+        int id PK
+        int product_id FK
+        string name "e.g. Size"
+        int position
+    }
+    PRODUCT_OPTION_VALUE {
+        int id PK
+        int option_id FK
+        string value "e.g. 3x10 in"
+        int position
+    }
+    PRODUCT_VARIANT {
+        int id PK
+        int product_id FK
+        string sku UK
+        string title "e.g. Large / Glossy"
+        decimal price
+        int stock_quantity
+        bool is_active
+        int position
+    }
+    VARIANT_OPTION_VALUE {
+        int variant_id FK
+        int option_value_id FK
+    }
+
+    %% ============ storefront ============
+    HOME_SECTION {
+        int id PK
+        string type "hero|product_carousel"
+        string title
+        int collection_id FK "nullable"
+        string view_all_link
+        int max_products
+        int position
+        bool is_visible
+    }
+    HERO_BANNER {
+        int id PK
+        int section_id FK
+        string image_desktop
+        string image_mobile
+        string heading
+        string subheading
+        string button_text
+        string button_link
+        int position
+        bool is_active
+    }
+
+    %% ============ orders ============
+    CART {
+        int id PK
+        int user_id FK "nullable"
+        uuid session_key UK "guest carts"
+        datetime created_at
+        datetime updated_at
+    }
+    CART_ITEM {
+        int id PK
+        int cart_id FK
+        int variant_id FK
+        int quantity
+    }
+    ORDER {
+        int id PK
+        string order_number UK
+        int user_id FK "nullable (guest)"
+        string status "pending|confirmed|shipped|delivered|cancelled"
+        string full_name
+        string email
+        string phone
+        string line1
+        string line2
+        string city
+        string region
+        string postal_code
+        string country
+        text customer_note
+        text internal_note
+        decimal subtotal
+        datetime created_at
+        datetime updated_at
+    }
+    ORDER_ITEM {
+        int id PK
+        int order_id FK
+        int variant_id FK "nullable (SET_NULL)"
+        string product_title "snapshot"
+        string variant_title "snapshot"
+        string sku "snapshot"
+        decimal unit_price "snapshot"
+        int quantity
+        decimal line_total
+    }
+    ORDER_STATUS_HISTORY {
+        int id PK
+        int order_id FK
+        string from_status
+        string to_status
+        int changed_by_id FK
+        datetime changed_at
+    }
+
+    %% ============ core ============
+    SITE_SETTINGS {
+        int id PK "singleton"
+        string store_name
+        string logo
+        string favicon
+        string announcement_text
+        string announcement_link
+        bool announcement_active
+        string contact_email
+        string currency_symbol
+        string instagram_url
+        string tiktok_url
+        string seo_default_title
+        string seo_default_description
+    }
+    MENU_ITEM {
+        int id PK
+        string menu "header|footer|policies"
+        int parent_id FK "nullable"
+        string label
+        string url
+        int position
+        bool is_active
+    }
+    PAGE {
+        int id PK
+        string title
+        string slug UK
+        string page_type "page|policy"
+        text body
+        bool is_published
+        datetime updated_at
+    }
+    HOWTO_VIDEO {
+        int id PK
+        string title
+        string video_url
+        string thumbnail
+        int product_id FK "nullable"
+        int position
+        bool is_active
+    }
+    CONTACT_MESSAGE {
+        int id PK
+        string name
+        string email
+        string phone
+        text message
+        bool is_read
+        datetime created_at
+    }
+    NEWSLETTER_SUBSCRIBER {
+        int id PK
+        string email UK
+        bool is_active
+        datetime subscribed_at
+    }
+
+    %% ============ relationships ============
+    USER ||--o{ ADDRESS : has
+    USER ||--o| CART : owns
+    USER ||--o{ ORDER : places
+    USER ||--o{ ORDER_STATUS_HISTORY : changes
+
+    COLLECTION ||--o{ COLLECTION_PRODUCT : contains
+    PRODUCT ||--o{ COLLECTION_PRODUCT : "listed in"
+    PRODUCT ||--o{ PRODUCT_TAG : tagged
+    TAG ||--o{ PRODUCT_TAG : labels
+    PRODUCT ||--o{ PRODUCT_IMAGE : has
+    PRODUCT ||--o{ PRODUCT_OPTION : defines
+    PRODUCT_OPTION ||--o{ PRODUCT_OPTION_VALUE : has
+    PRODUCT ||--|{ PRODUCT_VARIANT : "sold as"
+    PRODUCT_VARIANT ||--o{ VARIANT_OPTION_VALUE : combines
+    PRODUCT_OPTION_VALUE ||--o{ VARIANT_OPTION_VALUE : "used in"
+
+    COLLECTION |o--o{ HOME_SECTION : "featured in"
+    HOME_SECTION ||--o{ HERO_BANNER : shows
+
+    CART ||--o{ CART_ITEM : holds
+    PRODUCT_VARIANT ||--o{ CART_ITEM : "added as"
+    ORDER ||--|{ ORDER_ITEM : contains
+    PRODUCT_VARIANT |o--o{ ORDER_ITEM : "ordered as"
+    ORDER ||--o{ ORDER_STATUS_HISTORY : tracks
+
+    MENU_ITEM |o--o{ MENU_ITEM : "parent of"
+    PRODUCT |o--o{ HOWTO_VIDEO : "demoed in"

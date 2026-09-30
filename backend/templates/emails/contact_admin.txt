@@ -1,0 +1,6 @@
+{% autoescape off %}New contact message
+
+From: {{ message.name }} <{{ message.email }}> {{ message.phone }}
+
+{{ message.message }}
+{% endautoescape %}

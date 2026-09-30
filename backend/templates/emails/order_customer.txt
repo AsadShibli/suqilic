@@ -1,0 +1,15 @@
+{% autoescape off %}Hi {{ order.full_name }},
+
+Thanks for your order request! We've received order {{ order.order_number }} and will contact you shortly to confirm delivery.
+
+{% for item in items %}- {{ item.quantity }} x {{ item.product_title }} ({{ item.variant_title }}) — {{ item.line_total }}
+{% endfor %}
+Subtotal: {{ order.subtotal }}
+
+Shipping to:
+{{ order.line1 }}{% if order.line2 %}, {{ order.line2 }}{% endif %}
+{{ order.city }}{% if order.region %}, {{ order.region }}{% endif %} {{ order.postal_code }}
+{{ order.country }}
+
+— Suqilic
+{% endautoescape %}

@@ -1,0 +1,10 @@
+{% autoescape off %}New order request {{ order.order_number }}
+
+Customer: {{ order.full_name }} <{{ order.email }}> {{ order.phone }}
+Address: {{ order.line1 }} {{ order.line2 }}, {{ order.city }} {{ order.region }} {{ order.postal_code }}, {{ order.country }}
+Note: {{ order.customer_note|default:"—" }}
+
+{% for item in items %}- {{ item.quantity }} x {{ item.product_title }} ({{ item.variant_title }}) [{{ item.sku }}] — {{ item.line_total }}
+{% endfor %}
+Subtotal: {{ order.subtotal }}
+{% endautoescape %}
