@@ -65,6 +65,7 @@
 .smoke {
   position: relative;
   isolation: isolate;
+  overflow: clip; /* keep the oversized glow from widening the page */
 }
 .smoke::before {
   content: '';
