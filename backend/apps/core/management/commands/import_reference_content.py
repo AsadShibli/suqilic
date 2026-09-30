@@ -120,7 +120,7 @@ class Command(BaseCommand):
             self.stderr.write(f"Collection '{handle}' not found, skipping.")
             return
         collection, _ = Collection.objects.update_or_create(
-            slug=slugify(handle),
+            slug=slugify(handle.replace("™", "")),  # slugify would turn ™ into "tm"
             defaults={"title": meta["title"], "description": meta.get("description") or "", "sort_order": sort_order},
         )
         self.stdout.write(f"Collection {collection.title}")
