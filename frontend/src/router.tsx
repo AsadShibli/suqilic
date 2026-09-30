@@ -1,11 +1,10 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { ADMIN_PATH } from '@/lib/config'
 import { StoreLayout } from '@/components/layout/StoreLayout'
 import Home from '@/pages/Home'
 import NotFound from '@/pages/NotFound'
-
-export const ADMIN_PATH = `/${(import.meta.env.VITE_ADMIN_PATH ?? 'suqilic-control').replace(/^\/|\/$/g, '')}`
 
 const Collection = lazy(() => import('@/pages/Collection'))
 const Product = lazy(() => import('@/pages/Product'))

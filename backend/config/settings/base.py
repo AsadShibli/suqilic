@@ -1,7 +1,12 @@
+import mimetypes
 from datetime import timedelta
 from pathlib import Path
 
 import environ
+
+# Windows registries often lack these; needed for correct Content-Type on media.
+mimetypes.add_type("image/webp", ".webp")
+mimetypes.add_type("image/avif", ".avif")
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 

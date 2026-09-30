@@ -25,7 +25,9 @@ export function RecordForm({ resource, fields, record, defaults = {}, onSaved, s
   })
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => reset(initial()), [record?.id])
+  useEffect(() => {
+    reset(initial())
+  }, [record?.id])
 
   const onSubmit = handleSubmit((values) => {
     const body = { ...defaults, ...normalize(values, fields) }

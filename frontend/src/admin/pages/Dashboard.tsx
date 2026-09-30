@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { Spinner } from '@/components/ui'
 import { api } from '@/lib/api'
+import { ADMIN_PATH } from '@/lib/config'
 import { formatDate, money } from '@/lib/format'
 
 import type { Row } from '../api'
@@ -45,7 +46,7 @@ export default function Dashboard() {
       ) : (
         <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
           {tiles.map((t) => (
-            <Link key={t.label} to={t.to} className="card p-5 transition-colors hover:border-accent">
+            <Link key={t.label} to={`${ADMIN_PATH}/${t.to}`} className="card p-5 transition-colors hover:border-accent">
               <p className="text-xs tracking-wider text-muted uppercase">{t.label}</p>
               <p className="mt-2 text-3xl font-semibold tabular-nums">{t.value}</p>
             </Link>
@@ -57,7 +58,7 @@ export default function Dashboard() {
         rows={recent.data ?? []}
         loading={recent.isLoading}
         columns={[
-          { key: 'order_number', label: 'Order', render: (r) => <Link to={`orders/${r.id}`} className="underline">{String(r.order_number)}</Link> },
+          { key: 'order_number', label: 'Order', render: (r) => <Link to={`${ADMIN_PATH}/orders/${r.id}`} className="underline">{String(r.order_number)}</Link> },
           { key: 'full_name', label: 'Customer' },
           { key: 'status', label: 'Status', render: (r) => <StatusPill value={String(r.status)} /> },
           { key: 'subtotal', label: 'Subtotal', render: (r) => money(r.subtotal as string) },

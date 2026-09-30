@@ -1,21 +1,16 @@
 import { ImagePlus, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-type Props = { value: string | File | null | undefined; onChange: (v: File | null) => void; multiple?: false }
+type Props = { value: string | File | null | undefined; onChange: (v: File | null) => void }
 
 /** Click or drag-and-drop an image; shows a preview of the current URL or selected file. */
 export function ImageInput({ value, onChange }: Props) {
-  const [preview, setPreview] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
+  const preview = useMemo(() => (value instanceof File ? URL.createObjectURL(value) : value || null), [value])
 
   useEffect(() => {
-    if (value instanceof File) {
-      const url = URL.createObjectURL(value)
-      setPreview(url)
-      return () => URL.revokeObjectURL(url)
-    }
-    setPreview(value || null)
-  }, [value])
+    if (value instanceof File && preview) return () => URL.revokeObjectURL(preview)
+  }, [value, preview])
 
   const pick = (files: FileList | null) => {
     const file = files?.[0]

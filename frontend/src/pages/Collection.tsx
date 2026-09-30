@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom'
 
 import { useCollection } from '@/api/storefront'
 import { ProductListing } from '@/components/product/ProductListing'
-import { Seo, Skeleton } from '@/components/ui'
+import { RichText, Seo, Skeleton } from '@/components/ui'
 
 import NotFound from './NotFound'
 
@@ -24,7 +24,9 @@ export default function Collection() {
         ) : (
           <h1 className="font-display text-4xl md:text-6xl">{collection?.title}</h1>
         )}
-        {collection?.description && <p className="mx-auto mt-4 max-w-2xl text-muted">{collection.description}</p>}
+        {collection?.description && (
+          <RichText html={collection.description} className="mx-auto mt-4 max-w-2xl text-muted" />
+        )}
       </header>
       <ProductListing key={slug} collection={slug} />
     </div>

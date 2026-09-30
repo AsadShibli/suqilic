@@ -54,10 +54,10 @@ export default function OrderDetail() {
                       {item.variant_title !== 'Default' && <span className="text-muted"> — {item.variant_title}</span>}
                       {item.sku && <span className="block text-xs text-muted">SKU {item.sku}</span>}
                     </td>
-                    <td className="py-2 text-right text-muted">
+                    <td className="py-2 pl-4 text-right whitespace-nowrap text-muted">
                       {item.quantity} × {money(item.unit_price)}
                     </td>
-                    <td className="py-2 text-right">{money(item.line_total)}</td>
+                    <td className="py-2 pl-4 text-right">{money(item.line_total)}</td>
                   </tr>
                 ))}
               </tbody>

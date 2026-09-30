@@ -22,6 +22,7 @@ import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 
 import { useLogout } from '@/api/account'
 import { PageLoader } from '@/components/ui'
+import { ADMIN_PATH } from '@/lib/config'
 import { useAuth } from '@/stores/auth'
 
 import { ConfirmHost } from './components/ConfirmDialog'
@@ -83,7 +84,7 @@ export default function AdminApp() {
         )}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
-          <Link to="." onClick={() => setNavOpen(false)}>
+          <Link to={ADMIN_PATH} onClick={() => setNavOpen(false)}>
             <img src="/logo.png" alt="Suqilic" className="h-8" />
           </Link>
           <button className="lg:hidden" onClick={() => setNavOpen(false)} aria-label="Close menu">
@@ -94,7 +95,7 @@ export default function AdminApp() {
           {NAV.filter((n) => !n.superuser || user.is_superuser).map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={label}
-              to={to}
+              to={to ? `${ADMIN_PATH}/${to}` : ADMIN_PATH}
               end={end}
               onClick={() => setNavOpen(false)}
               className={({ isActive }) =>
@@ -147,7 +148,7 @@ export default function AdminApp() {
               <Route path="subscribers" element={<Subscribers />} />
               <Route path="settings" element={<SiteSettings />} />
               {user.is_superuser && <Route path="staff" element={<Staff />} />}
-              <Route path="*" element={<Navigate to="." replace />} />
+              <Route path="*" element={<Navigate to={ADMIN_PATH} replace />} />
             </Routes>
           </Suspense>
         </main>

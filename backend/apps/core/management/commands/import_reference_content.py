@@ -138,7 +138,7 @@ class Command(BaseCommand):
     def import_product(self, data) -> Product:
         with transaction.atomic():
             product, created = self.upsert_product(data)
-        if created:  # network I/O stays outside the transaction
+        if created or not product.images.exists():  # network I/O stays outside the transaction
             self.import_images(product, data)
             self.stdout.write(f"  + {product.title}")
         return product
