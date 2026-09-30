@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 .env
 db.sqlite3
-media/
-staticfiles/
+/media/
+/staticfiles/
 .pytest_cache/
 db.sqlite3-journal
