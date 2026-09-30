@@ -22,7 +22,7 @@ services:
       python manage.py migrate --noinput &&
       python manage.py seed_demo &&
       (python manage.py createsuperuser --noinput || true) &&
-      gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --access-logfile -
+      gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 8 --timeout 60 --access-logfile -
     healthCheckPath: /robots.txt
     envVars:
       - key: PYTHON_VERSION
