@@ -15,8 +15,8 @@ function Hero({ banner }: { banner: HeroBanner }) {
       </picture>
       <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent" />
       <div className="container-page relative flex min-h-[60vh] flex-col items-center justify-center gap-6 py-20 text-center">
-        {banner.heading && <h1 className="font-display text-5xl tracking-wide uppercase md:text-7xl">{banner.heading}</h1>}
-        {banner.subheading && <p className="max-w-xl text-lg text-text/90">{banner.subheading}</p>}
+        {banner.heading && <h1 className="font-display text-5xl md:text-7xl">{banner.heading}</h1>}
+        {banner.subheading && <p className="max-w-xl text-lg text-muted">{banner.subheading}</p>}
         {banner.button_text && banner.button_link && (
           <Link to={banner.button_link} className="btn-primary">
             {banner.button_text}
