@@ -48,6 +48,17 @@ services:
         value: suqilic-control
       - key: DJANGO_ADMIN_PATH
         value: django-admin
+      # Outgoing mail (password reset). Use an SMTP provider; Gmail needs an App Password.
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
       # First staff account, created on boot if missing. Set these yourself in the dashboard.
       - key: DJANGO_SUPERUSER_EMAIL
         sync: false
