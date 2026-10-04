@@ -8,6 +8,7 @@ import NotFound from '@/pages/NotFound'
 
 const Collection = lazy(() => import('@/pages/Collection'))
 const Product = lazy(() => import('@/pages/Product'))
+const MetroSkin = lazy(() => import('@/pages/MetroSkin'))
 const Search = lazy(() => import('@/pages/Search'))
 const Cart = lazy(() => import('@/pages/Cart'))
 const Checkout = lazy(() => import('@/pages/Checkout'))
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: 'collections/:slug', element: <Collection /> },
       { path: 'products/:slug', element: <Product /> },
+      { path: 'metro-skin', element: <MetroSkin /> },
       { path: 'search', element: <Search /> },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },

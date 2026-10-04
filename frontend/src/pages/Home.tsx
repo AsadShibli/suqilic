@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { useHome } from '@/api/storefront'
+import { MetroSkinGallery } from '@/components/MetroSkinGallery'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { ProductGridSkeleton } from '@/components/product/ProductGrid'
 import { Seo, Skeleton } from '@/components/ui'
@@ -54,6 +55,7 @@ export default function Home() {
           />
         ),
       )}
+      <MetroSkinGallery preview />
     </>
   )
 }
