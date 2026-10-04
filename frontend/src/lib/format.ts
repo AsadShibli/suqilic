@@ -1,4 +1,4 @@
-export function money(value: string | number | null | undefined, symbol = '$'): string {
+export function money(value: string | number | null | undefined, symbol = '৳'): string {
   const n = Number(value ?? 0)
   return `${symbol}${n.toFixed(2)}`
 }

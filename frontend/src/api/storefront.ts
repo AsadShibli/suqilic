@@ -21,7 +21,7 @@ export const useSettings = () => useQuery({ queryKey: ['settings'], queryFn: () 
 
 export function useMoney() {
   const { data } = useSettings()
-  return (value: string | number | null | undefined) => money(value, data?.currency_symbol ?? '$')
+  return (value: string | number | null | undefined) => money(value, data?.currency_symbol ?? '৳')
 }
 
 export const useMenu = (menu: 'header' | 'footer' | 'policies') =>

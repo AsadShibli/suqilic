@@ -147,7 +147,7 @@ class Command(BaseCommand):
 
     def site(self):
         site = SiteSettings.load()
-        site.announcement_text = site.announcement_text or "Free shipping on orders over $35"
+        site.announcement_text = site.announcement_text or "Free shipping on orders over ৳500"
         site.announcement_active = True
         site.seo_default_title = site.seo_default_title or "Suqilic — Card Skins & Stickers"
         site.save()
