@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from django.conf import settings
 from django.core import signing
@@ -13,10 +14,15 @@ UNSUBSCRIBE_SALT = "newsletter-unsubscribe"
 def send_templated_email(template: str, context: dict, to: list[str], subject: str) -> None:
     """Render `emails/<template>.txt` and send it; failures are logged, never raised to the request."""
     body = render_to_string(f"emails/{template}.txt", context)
-    try:
-        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, to)
-    except Exception:  # noqa: BLE001 - email must not break the user flow
-        logger.exception("Failed to send '%s' email to %s", template, to)
+
+    def _send():
+        try:
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, to)
+        except Exception:  # noqa: BLE001 - email must not break the user flow
+            logger.exception("Failed to send '%s' email to %s", template, to)
+
+    # Sent in the background so a slow or blocked mail server never stalls the request.
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def make_unsubscribe_token(email: str) -> str:

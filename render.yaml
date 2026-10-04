@@ -50,7 +50,9 @@ services:
         value: django-admin
       # Outgoing mail (password reset). Use an SMTP provider; Gmail needs an App Password.
       - key: EMAIL_BACKEND
-        value: django.core.mail.backends.smtp.EmailBackend
+        value: apps.core.brevo_backend.BrevoEmailBackend
+      - key: BREVO_API_KEY
+        sync: false
       - key: EMAIL_HOST
         sync: false
       - key: EMAIL_HOST_USER
