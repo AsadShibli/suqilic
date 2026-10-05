@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
+import { ServerWakeBanner } from '../ServerWakeBanner'
 import { PageLoader } from '../ui'
 import { CartDrawer } from './CartDrawer'
 import { Footer } from './Footer'
@@ -25,6 +26,7 @@ export function StoreLayout() {
       </main>
       <Footer />
       <CartDrawer />
+      <ServerWakeBanner />
     </div>
   )
 }

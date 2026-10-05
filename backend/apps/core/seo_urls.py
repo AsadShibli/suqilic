@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap
-from django.http import HttpResponse
+from django.db import connection
+from django.http import HttpResponse, JsonResponse
 from django.urls import path
 
 from apps.catalog.models import Collection, Product
@@ -62,9 +63,17 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
+def health(request):
+    """Cheap liveness + DB check for the host's health probe and the keep-warm pinger."""
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT 1")
+    return JsonResponse({"status": "ok"})
+
+
 sitemaps = {"products": ProductSitemap, "collections": CollectionSitemap, "pages": PageSitemap}
 
 urlpatterns = [
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("robots.txt", robots_txt, name="robots"),
+    path("healthz", health, name="health"),
 ]
