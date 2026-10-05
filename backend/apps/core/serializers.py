@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ContactMessage, HowToVideo, MenuItem, NewsletterSubscriber, Page, SiteSettings
+from .models import ContactMessage, HowToVideo, MenuItem, Page, SiteSettings
 
 
 class SiteSettingsSerializer(serializers.ModelSerializer):

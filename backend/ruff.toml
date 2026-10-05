@@ -1,0 +1,7 @@
+line-length = 140
+target-version = "py311"
+extend-exclude = ["migrations", ".venv"]
+
+[lint]
+# pycodestyle, pyflakes, import order, bugbear, pyupgrade
+select = ["E", "F", "I", "B", "UP"]

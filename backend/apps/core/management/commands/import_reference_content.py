@@ -9,7 +9,6 @@ Idempotent: products and collections are upserted by slug.
 """
 
 import logging
-import shutil
 from decimal import Decimal
 from pathlib import Path
 from urllib.parse import quote, urlparse
@@ -218,8 +217,11 @@ class Command(BaseCommand):
 
         if not MenuItem.objects.exists():
             MenuItem.objects.bulk_create(
-                [MenuItem(menu="header", label=l, url=u, position=i) for i, (l, u) in enumerate(HEADER_MENU)]
-                + [MenuItem(menu="policies", label=l, url=f"/policies/{s}", position=i) for i, (l, s) in enumerate(POLICIES)]
+                [MenuItem(menu="header", label=label, url=url, position=i) for i, (label, url) in enumerate(HEADER_MENU)]
+                + [
+                    MenuItem(menu="policies", label=label, url=f"/policies/{slug}", position=i)
+                    for i, (label, slug) in enumerate(POLICIES)
+                ]
             )
 
         for title, slug in POLICIES:

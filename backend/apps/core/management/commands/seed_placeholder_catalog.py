@@ -64,7 +64,7 @@ def _centered(draw, box, lines, fill):
     fonts = [_fit(draw, line, (right - left) * 0.82, 150) for line in lines]
     total = sum(f.size for f in fonts) + 24 * (len(lines) - 1)
     y = (top + bottom - total) / 2
-    for line, font in zip(lines, fonts):
+    for line, font in zip(lines, fonts, strict=True):
         draw.text(((left + right) / 2, y), line, font=font, fill=fill, anchor="ma")
         y += font.size + 24
 
