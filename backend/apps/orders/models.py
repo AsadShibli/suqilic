@@ -42,6 +42,14 @@ class Order(TimeStampedModel):
         DELIVERED = "delivered"
         CANCELLED = "cancelled"
 
+    class PaymentMethod(models.TextChoices):
+        COD = "cod", "Cash on delivery"
+        ONLINE = "online", "Online (SSLCommerz)"
+
+    class PaymentStatus(models.TextChoices):
+        UNPAID = "unpaid"
+        PAID = "paid"
+
     order_number = models.CharField(max_length=20, unique=True, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, related_name="orders", on_delete=models.SET_NULL
@@ -59,6 +67,10 @@ class Order(TimeStampedModel):
     customer_note = models.TextField(blank=True, max_length=1000)
     internal_note = models.TextField(blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices, default=PaymentMethod.COD)
+    payment_status = models.CharField(
+        max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID, db_index=True
+    )
 
     class Meta:
         ordering = ["-created_at"]

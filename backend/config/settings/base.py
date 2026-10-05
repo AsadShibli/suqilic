@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.storefront",
     "apps.orders",
     "apps.inventory",
+    "apps.payments",
 ]
 
 MIDDLEWARE = [
@@ -140,6 +141,7 @@ REST_FRAMEWORK = {
         "orders": "10/hour",
         "forms": "5/hour",
         "track": "30/hour",
+        "payments": "20/hour",
     },
 }
 
@@ -182,6 +184,12 @@ CACHES = {
 }
 # Public catalog responses. Writes bump a version key; the TTL bounds staleness across processes without Redis.
 PUBLIC_CACHE_TIMEOUT = env.int("PUBLIC_CACHE_TIMEOUT", default=300 if REDIS_URL else 60)
+
+# SSLCommerz hosted checkout. Leave the credentials empty to offer cash on delivery only.
+# Free sandbox credentials: https://developer.sslcommerz.com/registration/
+SSLCOMMERZ_STORE_ID = env("SSLCOMMERZ_STORE_ID", default="")
+SSLCOMMERZ_STORE_PASSWORD = env("SSLCOMMERZ_STORE_PASSWORD", default="")
+SSLCOMMERZ_SANDBOX = env.bool("SSLCOMMERZ_SANDBOX", default=True)
 
 LOGGING = {
     "version": 1,

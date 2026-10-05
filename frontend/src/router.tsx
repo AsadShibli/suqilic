@@ -14,6 +14,7 @@ const Cart = lazy(() => import('@/pages/Cart'))
 const Checkout = lazy(() => import('@/pages/Checkout'))
 const OrderConfirmation = lazy(() => import('@/pages/OrderConfirmation'))
 const TrackOrder = lazy(() => import('@/pages/TrackOrder'))
+const PaymentResult = lazy(() => import('@/pages/PaymentResult'))
 const ContentPage = lazy(() => import('@/pages/ContentPage'))
 const Account = lazy(() => import('@/pages/account/Account'))
 const auth = () => import('@/pages/account/AuthPages')
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: 'checkout', element: <Checkout /> },
       { path: 'orders/track', element: <TrackOrder /> },
       { path: 'orders/:number/confirmation', element: <OrderConfirmation /> },
+      { path: 'payment/result', element: <PaymentResult /> },
       { path: 'pages/:slug', element: <ContentPage /> },
       { path: 'policies/:slug', element: <ContentPage kind="policies" /> },
       { path: 'account', element: <Account /> },

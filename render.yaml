@@ -61,6 +61,11 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+      # SSLCommerz sandbox (free at developer.sslcommerz.com). Leave empty for cash on delivery only.
+      - key: SSLCOMMERZ_STORE_ID
+        sync: false
+      - key: SSLCOMMERZ_STORE_PASSWORD
+        sync: false
       # Optional: a Redis URL (e.g. Render Key Value) enables the shared cache. Without a Celery worker
       # service, tasks keep running in a background thread, which suits the free tier.
       - key: REDIS_URL

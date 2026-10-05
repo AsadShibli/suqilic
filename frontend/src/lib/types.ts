@@ -130,6 +130,8 @@ export type Order = Address & {
   email: string
   customer_note: string
   subtotal: string
+  payment_method: 'cod' | 'online'
+  payment_status: 'unpaid' | 'paid'
   items: OrderItem[]
   created_at: string
 }

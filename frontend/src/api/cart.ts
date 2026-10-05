@@ -45,7 +45,7 @@ export const useUpdateCartItem = () =>
 export const useRemoveCartItem = () =>
   useCartMutation((id: number) => api.delete<Cart>(`/cart/items/${id}/`).then((r) => r.data))
 
-export type OrderRequest = Address & { email: string; customer_note: string }
+export type OrderRequest = Address & { email: string; customer_note: string; payment_method: 'cod' | 'online' }
 
 export function usePlaceOrder() {
   const qc = useQueryClient()

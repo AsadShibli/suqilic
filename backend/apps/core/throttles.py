@@ -26,3 +26,7 @@ class FormThrottle(IPScopedThrottle):
 
 class TrackThrottle(IPScopedThrottle):
     scope = "track"
+
+
+class PaymentThrottle(IPScopedThrottle):
+    scope = "payments"

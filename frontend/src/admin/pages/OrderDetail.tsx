@@ -36,6 +36,7 @@ export default function OrderDetail() {
       </Link>
       <PageHeader title={order.order_number}>
         <StatusPill value={order.status} />
+        <StatusPill value={order.payment_method === 'online' ? `online · ${order.payment_status}` : 'cash on delivery'} />
         <button className="btn-outline print:hidden" onClick={() => window.print()}>
           <Printer className="size-4" /> Print
         </button>

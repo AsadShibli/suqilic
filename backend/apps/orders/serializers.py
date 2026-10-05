@@ -65,8 +65,15 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "full_name", "email", "phone", "line1", "line2", "city", "region", "postal_code", "country",
-            "customer_note",
+            "customer_note", "payment_method",
         ]
+
+    def validate_payment_method(self, value):
+        from apps.payments import sslcommerz
+
+        if value == Order.PaymentMethod.ONLINE and not sslcommerz.is_configured():
+            raise serializers.ValidationError("Online payment is not available right now.")
+        return value
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -87,7 +94,8 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "order_number", "status", "full_name", "email", "phone", "line1", "line2", "city", "region",
-            "postal_code", "country", "customer_note", "subtotal", "items", "created_at",
+            "postal_code", "country", "customer_note", "subtotal", "payment_method", "payment_status", "items",
+            "created_at",
         ]
 
 

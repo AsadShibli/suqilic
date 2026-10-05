@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 import { useMyAddresses } from '@/api/account'
 import { useCart, usePlaceOrder } from '@/api/cart'
+import { usePaymentConfig, useStartPayment } from '@/api/payments'
 import { useMoney } from '@/api/storefront'
 import { EmptyState, Field, PageLoader, Seo } from '@/components/ui'
 import { applyFieldErrors, errorMessage } from '@/lib/api'
@@ -26,6 +27,11 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
+const PAYMENT_OPTIONS = [
+  ['online', 'Pay online', 'bKash, Nagad, cards and net banking via SSLCommerz (sandbox, no real money)'],
+  ['cod', 'Cash on delivery', 'Pay the courier when your order arrives'],
+] as const
+
 const EMPTY: FormValues = {
   full_name: '', email: '', phone: '', line1: '', line2: '', city: '', region: '', postal_code: '', country: '',
   customer_note: '',
@@ -36,6 +42,10 @@ export default function Checkout() {
   const { data: cart, isLoading } = useCart()
   const { data: addresses } = useMyAddresses()
   const placeOrder = usePlaceOrder()
+  const startPayment = useStartPayment()
+  const onlineAvailable = usePaymentConfig().data?.online_payments ?? false
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('online')
+  const payOnline = onlineAvailable && paymentMethod === 'online'
   const navigate = useNavigate()
   const money = useMoney()
   const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<FormValues>({
@@ -56,8 +66,14 @@ export default function Checkout() {
   }, [user, addresses, reset])
 
   const onSubmit = handleSubmit((values) =>
-    placeOrder.mutate(values, {
-      onSuccess: (order) => navigate(`/orders/${order.order_number}/confirmation`, { state: { order }, replace: true }),
+    placeOrder.mutate({ ...values, payment_method: payOnline ? 'online' : 'cod' }, {
+      onSuccess: (order) => {
+        const confirmation = () =>
+          navigate(`/orders/${order.order_number}/confirmation`, { state: { order }, replace: true })
+        if (order.payment_method !== 'online') return confirmation()
+        // On success the browser leaves for the gateway; if that fails the order is saved and payable later.
+        startPayment.mutate({ order_number: order.order_number, email: order.email }, { onError: confirmation })
+      },
       onError: (e) => {
         applyFieldErrors(e, setError)
         toast.error(errorMessage(e))
@@ -83,9 +99,11 @@ export default function Checkout() {
       <Seo title="Checkout" />
       <form onSubmit={onSubmit} className="space-y-6" noValidate>
         <div>
-          <h1 className="section-title">Order request</h1>
+          <h1 className="section-title">{onlineAvailable ? 'Checkout' : 'Order request'}</h1>
           <p className="mt-2 text-sm text-muted">
-            No online payment. Send your request and we’ll contact you to confirm and arrange delivery.
+            {onlineAvailable
+              ? 'Pay online now, or choose cash on delivery and we’ll contact you to confirm.'
+              : 'No online payment. Send your request and we’ll contact you to confirm and arrange delivery.'}
             {!user && (
               <>
                 {' '}
@@ -137,8 +155,34 @@ export default function Checkout() {
             </Field>
           </div>
         </div>
-        <button className="btn-primary w-full py-4" disabled={placeOrder.isPending}>
-          {placeOrder.isPending ? 'Sending…' : 'Send order request'}
+        {onlineAvailable && (
+          <fieldset className="space-y-2">
+            <legend className="label">Payment</legend>
+            {PAYMENT_OPTIONS.map(([value, title, hint]) => (
+              <label key={value} className="card flex cursor-pointer items-start gap-3 p-4 has-[:checked]:border-accent">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  className="mt-1 accent-white"
+                  checked={paymentMethod === value}
+                  onChange={() => setPaymentMethod(value)}
+                />
+                <span>
+                  <span className="block text-sm font-semibold">{title}</span>
+                  <span className="block text-xs text-muted">{hint}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        )}
+        <button className="btn-primary w-full py-4" disabled={placeOrder.isPending || startPayment.isPending}>
+          {startPayment.isPending
+            ? 'Opening payment…'
+            : placeOrder.isPending
+              ? 'Sending…'
+              : payOnline
+                ? 'Continue to payment'
+                : 'Send order request'}
         </button>
       </form>
 

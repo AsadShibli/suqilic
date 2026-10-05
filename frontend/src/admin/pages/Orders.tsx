@@ -38,6 +38,11 @@ export default function Orders() {
         { key: 'item_count', label: 'Items' },
         { key: 'subtotal', label: 'Subtotal', sortable: true, render: (r) => money(r.subtotal as string) },
         { key: 'status', label: 'Status', sortable: true, render: (r) => <StatusPill value={String(r.status)} /> },
+        {
+          key: 'payment_status',
+          label: 'Payment',
+          render: (r) => (r.payment_method === 'online' ? <StatusPill value={String(r.payment_status)} /> : 'COD'),
+        },
         { key: 'created_at', label: 'Date', sortable: true, render: (r) => formatDate(String(r.created_at)) },
       ]}
     />

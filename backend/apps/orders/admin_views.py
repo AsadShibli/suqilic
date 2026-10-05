@@ -24,7 +24,10 @@ class OrderAdminListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "order_number", "status", "full_name", "email", "phone", "subtotal", "item_count", "created_at"]
+        fields = [
+            "id", "order_number", "status", "payment_method", "payment_status", "full_name", "email", "phone",
+            "subtotal", "item_count", "created_at",
+        ]
 
 
 class OrderAdminSerializer(serializers.ModelSerializer):
@@ -56,7 +59,7 @@ class OrderAdminViewSet(
 
     permission_classes = [IsStaff]
     http_method_names = ["get", "patch", "delete", "post"]
-    filterset_fields = {"status": ["exact"], "created_at": ["gte", "lte"]}
+    filterset_fields = {"status": ["exact"], "payment_status": ["exact"], "created_at": ["gte", "lte"]}
     search_fields = ["order_number", "full_name", "email", "phone"]
     ordering_fields = ["created_at", "subtotal", "status"]
     ordering = ["-created_at"]
@@ -66,7 +69,8 @@ class OrderAdminViewSet(
         ("Email", "email"), ("Phone", "phone"),
         ("Address", lambda o: ", ".join(filter(None, [o.line1, o.line2, o.city, o.region, o.postal_code, o.country]))),
         ("Items", lambda o: "; ".join(f"{i.quantity}x {i.product_title} ({i.variant_title})" for i in o.items.all())),
-        ("Subtotal", "subtotal"), ("Customer note", "customer_note"),
+        ("Subtotal", "subtotal"), ("Payment", "payment_method"), ("Paid", "payment_status"),
+        ("Customer note", "customer_note"),
     ]
 
     def get_queryset(self):

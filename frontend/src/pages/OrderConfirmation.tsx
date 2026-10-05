@@ -1,6 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 
+import { useStartPayment } from '@/api/payments'
 import { OrderSummary } from '@/components/OrderSummary'
 import { Seo } from '@/components/ui'
 import type { Order } from '@/lib/types'
@@ -8,6 +9,8 @@ import type { Order } from '@/lib/types'
 export default function OrderConfirmation() {
   const { number } = useParams()
   const order = (useLocation().state as { order?: Order } | null)?.order
+  const startPayment = useStartPayment()
+  const awaitingPayment = order?.payment_method === 'online' && order.payment_status === 'unpaid'
 
   return (
     <div className="smoke container-page max-w-2xl py-16 text-center">
@@ -23,8 +26,17 @@ export default function OrderConfirmation() {
           <OrderSummary order={order} />
         </div>
       )}
-      <div className="mt-8 flex justify-center gap-3">
-        <Link to="/" className="btn-primary">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        {order && awaitingPayment && (
+          <button
+            className="btn-primary"
+            disabled={startPayment.isPending}
+            onClick={() => startPayment.mutate({ order_number: order.order_number, email: order.email })}
+          >
+            {startPayment.isPending ? 'Opening payment…' : 'Pay now'}
+          </button>
+        )}
+        <Link to="/" className={awaitingPayment ? 'btn-outline' : 'btn-primary'}>
           Keep shopping
         </Link>
         <Link to="/orders/track" className="btn-outline">
