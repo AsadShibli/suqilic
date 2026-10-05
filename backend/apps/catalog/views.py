@@ -4,6 +4,8 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.core.cache import cache_public
+
 from . import selectors
 from .filters import ProductFilter
 from .models import Collection, Tag
@@ -21,11 +23,19 @@ class CollectionListView(generics.ListAPIView):
     serializer_class = CollectionSerializer
     pagination_class = None
 
+    @cache_public
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 class CollectionDetailView(generics.RetrieveAPIView):
     queryset = Collection.objects.filter(is_active=True)
     serializer_class = CollectionSerializer
     lookup_field = "slug"
+
+    @cache_public
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class ProductListView(generics.ListAPIView):
@@ -35,6 +45,10 @@ class ProductListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
     in_collection = False
+
+    @cache_public
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return selectors.product_list_queryset()
@@ -56,6 +70,10 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = selectors.product_detail_queryset()
     serializer_class = ProductDetailSerializer
     lookup_field = "slug"
+
+    @cache_public
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class RelatedProductsView(generics.ListAPIView):

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from apps.catalog.models import ProductVariant
+from apps.catalog.models import ProductImage, ProductVariant
 
 from .conftest import PASSWORD
 
@@ -32,7 +32,9 @@ def test_admin_login_rejects_customers(api, customer, staff):
     assert api.post("/api/v1/auth/admin/login/", {"email": staff.email, "password": PASSWORD}).status_code == 200
 
 
-def test_product_crud_with_options_variants_and_images(staff_api, collection, image_file):
+def test_product_crud_with_options_variants_and_images(
+    staff_api, collection, image_file, django_capture_on_commit_callbacks
+):
     res = staff_api.post("/api/v1/admin/products/", {
         "title": "Why Would I Brake Check You", "base_price": "8.99", "status": "active",
         "collection_ids": [collection.id],
@@ -46,8 +48,10 @@ def test_product_crud_with_options_variants_and_images(staff_api, collection, im
     assert staff_api.post(f"{base}/variants/generate/").data == {"created": 2}
     assert list(ProductVariant.objects.filter(product_id=pid).values_list("title", flat=True)) == ["S", "L"]
 
-    img = staff_api.post(f"{base}/images/", {"image": image_file, "is_main": True}, format="multipart")
-    assert img.status_code == 201 and img.data["thumbnail"]
+    with django_capture_on_commit_callbacks(execute=True):
+        img = staff_api.post(f"{base}/images/", {"image": image_file, "is_main": True}, format="multipart")
+    assert img.status_code == 201 and img.data["image"].endswith(".webp")
+    assert ProductImage.objects.get(pk=img.data["id"]).thumbnail.name.endswith("_thumb.webp")  # built by the task
 
     dup = staff_api.post(f"{base}/duplicate/")
     assert dup.status_code == 201 and dup.data["status"] == "draft" and len(dup.data["variants"]) == 2

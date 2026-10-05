@@ -1,12 +1,13 @@
-from django.conf import settings
 from django.db import transaction
 from django.db.models import F
 from rest_framework.exceptions import ValidationError
 
 from apps.catalog.models import Product, ProductVariant
 from apps.core.emails import send_templated_email
+from apps.core.tasks import dispatch
 
 from .models import Cart, Order, OrderItem, OrderStatusHistory
+from .tasks import send_order_emails
 
 
 @transaction.atomic
@@ -49,14 +50,8 @@ def place_order(cart: Cart, customer: dict, user=None) -> Order:
     order.save(update_fields=["subtotal"])
     cart.items.all().delete()
 
-    transaction.on_commit(lambda: _send_order_emails(order))
+    transaction.on_commit(lambda: dispatch(send_order_emails, order.pk))
     return order
-
-
-def _send_order_emails(order: Order) -> None:
-    context = {"order": order, "items": order.items.all()}
-    send_templated_email("order_customer", context, [order.email], f"We received your order {order.order_number}")
-    send_templated_email("order_admin", context, [settings.STORE_ADMIN_EMAIL], f"New order request {order.order_number}")
 
 
 @transaction.atomic

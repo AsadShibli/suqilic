@@ -6,6 +6,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .cache import cache_public
 from .emails import check_unsubscribe_token, send_templated_email
 from .models import HowToVideo, MenuItem, NewsletterSubscriber, Page, SiteSettings
 from .serializers import (
@@ -21,11 +22,13 @@ from .throttles import FormThrottle
 
 
 class SiteSettingsView(APIView):
+    @cache_public
     def get(self, request):
         return Response(SiteSettingsSerializer(SiteSettings.load(), context={"request": request}).data)
 
 
 class MenuView(APIView):
+    @cache_public
     def get(self, request, menu):
         if menu not in MenuItem.Menu.values:
             return Response(status=status.HTTP_404_NOT_FOUND)

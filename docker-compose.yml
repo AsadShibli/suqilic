@@ -12,17 +12,37 @@ services:
       interval: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
   backend:
     build: ./backend
     env_file: ./backend/.env
-    environment:
+    environment: &backend-env
       DJANGO_SETTINGS_MODULE: config.settings.prod
       DATABASE_URL: postgres://suqilic:${POSTGRES_PASSWORD}@db:5432/suqilic
+      REDIS_URL: redis://redis:6379/0
     volumes:
       - media:/app/media
-    depends_on:
+    depends_on: &backend-deps
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Sends email and builds image thumbnails off the request path.
+  worker:
+    build: ./backend
+    env_file: ./backend/.env
+    environment: *backend-env
+    command: celery -A config worker --loglevel=INFO --concurrency=2
+    volumes:
+      - media:/app/media
+    depends_on: *backend-deps
 
   web:
     build:

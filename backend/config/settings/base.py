@@ -58,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.core.middleware.noindex_middleware",
+    "apps.core.middleware.public_cache_invalidation_middleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -160,6 +161,26 @@ EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
 BREVO_API_KEY = env("BREVO_API_KEY", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Suqilic <no-reply@suqilic.com>")
 STORE_ADMIN_EMAIL = env("STORE_ADMIN_EMAIL", default="admin@suqilic.com")
+
+# Redis powers the Celery broker and the shared cache. Without it (e.g. Render's free tier) tasks run in a
+# background thread and the cache is per-process memory, so the app still works with no extra services.
+REDIS_URL = env("REDIS_URL", default="")
+CELERY_BROKER_URL = REDIS_URL or None
+CELERY_TASK_ALWAYS_EAGER = not REDIS_URL
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_TIME_LIMIT = 120
+# With no broker: run tasks in a daemon thread (True) or inline in the request (False, used by tests).
+TASKS_THREAD_FALLBACK = env.bool("TASKS_THREAD_FALLBACK", default=True)
+
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": REDIS_URL}
+    if REDIS_URL
+    else {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+}
+# Public catalog responses. Writes bump a version key; the TTL bounds staleness across processes without Redis.
+PUBLIC_CACHE_TIMEOUT = env.int("PUBLIC_CACHE_TIMEOUT", default=300 if REDIS_URL else 60)
 
 LOGGING = {
     "version": 1,

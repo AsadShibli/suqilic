@@ -16,6 +16,7 @@ PASSWORD = "S3cure-pass!"
 @pytest.fixture(autouse=True)
 def _isolate(settings, tmp_path):
     settings.MEDIA_ROOT = tmp_path
+    settings.TASKS_THREAD_FALLBACK = False  # run background tasks inline so tests are deterministic
     cache.clear()
 
 

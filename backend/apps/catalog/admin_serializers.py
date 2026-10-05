@@ -116,9 +116,9 @@ class ProductAdminListSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         images = list(obj.images.all())
-        if not images or not images[0].thumbnail:
+        if not images:
             return None
-        return self.context["request"].build_absolute_uri(images[0].thumbnail.url)
+        return self.context["request"].build_absolute_uri((images[0].thumbnail or images[0].image).url)
 
 
 class ProductAdminSerializer(AutoSlugMixin, serializers.ModelSerializer):

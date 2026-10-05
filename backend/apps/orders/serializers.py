@@ -23,10 +23,10 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         images = list(obj.variant.product.images.all())
-        if not images or not images[0].thumbnail:
+        if not images:
             return None
         request = self.context.get("request")
-        url = images[0].thumbnail.url
+        url = (images[0].thumbnail or images[0].image).url
         return request.build_absolute_uri(url) if request else url
 
 

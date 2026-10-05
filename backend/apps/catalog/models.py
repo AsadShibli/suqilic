@@ -1,9 +1,9 @@
 from django.apps import apps
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Min, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
 
-from apps.core.images import make_thumbnail, optimize_uploads
+from apps.core.images import optimize_uploads
 from apps.core.models import TimeStampedModel
 from apps.core.validators import IMAGE_VALIDATORS
 
@@ -113,12 +113,18 @@ class ProductImage(models.Model):
         return f"{self.product} image #{self.pk}"
 
     def save(self, *args, **kwargs):
-        if optimize_uploads(self, "image") or (self.image and not self.thumbnail):
-            thumb = make_thumbnail(self.image)
-            self.thumbnail.save(thumb.name, thumb, save=False)
+        # The full-size WebP is made inline (the editor shows it right away); the thumbnail is a background task.
+        if optimize_uploads(self, "image"):
+            self.thumbnail = ""
         if self.is_main:
             ProductImage.objects.filter(product=self.product, is_main=True).exclude(pk=self.pk).update(is_main=False)
         super().save(*args, **kwargs)
+        if self.image and not self.thumbnail:
+            from apps.core.tasks import dispatch
+
+            from .tasks import build_product_thumbnail
+
+            transaction.on_commit(lambda: dispatch(build_product_thumbnail, self.pk))
 
 
 class ProductOption(models.Model):
