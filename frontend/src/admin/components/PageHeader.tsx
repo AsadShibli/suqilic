@@ -12,7 +12,7 @@ export function PageHeader({ title, children }: { title: string; children?: Reac
 export function StatusPill({ value }: { value: string | boolean }) {
   const text = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value
   const tone =
-    value === true || ['active', 'delivered', 'confirmed', 'shipped'].includes(String(value))
+    value === true || ['active', 'delivered', 'confirmed', 'shipped', 'received'].includes(String(value))
       ? 'border-success/40 text-success'
       : value === false || ['archived', 'cancelled'].includes(String(value))
         ? 'border-danger/40 text-danger'

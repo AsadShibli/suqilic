@@ -1,10 +1,11 @@
 from django.db import transaction
-from django.db.models import F
 from rest_framework.exceptions import ValidationError
 
 from apps.catalog.models import Product, ProductVariant
 from apps.core.emails import send_templated_email
 from apps.core.tasks import dispatch
+from apps.inventory.models import StockMovement
+from apps.inventory.services import move_stock
 
 from .models import Cart, Order, OrderItem, OrderStatusHistory
 from .tasks import send_order_emails
@@ -44,7 +45,7 @@ def place_order(cart: Cart, customer: dict, user=None) -> Order:
     ]
     OrderItem.objects.bulk_create(order_items)
     for item in items:
-        ProductVariant.objects.filter(pk=item.variant_id).update(stock_quantity=F("stock_quantity") - item.quantity)
+        move_stock(item.variant_id, -item.quantity, StockMovement.Reason.SALE, user=user, order=order)
 
     order.subtotal = sum(i.line_total for i in order_items)
     order.save(update_fields=["subtotal"])
@@ -64,7 +65,7 @@ def change_order_status(order: Order, new_status: str, changed_by, note: str = "
         order=order, from_status=order.status, to_status=new_status, note=note, changed_by=changed_by
     )
     if new_status == Order.Status.CANCELLED:
-        _restock(order)
+        _restock(order, changed_by)
     order.status = new_status
     order.save(update_fields=["status", "updated_at"])
     if notify:
@@ -75,6 +76,6 @@ def change_order_status(order: Order, new_status: str, changed_by, note: str = "
     return order
 
 
-def _restock(order: Order) -> None:
+def _restock(order: Order, user) -> None:
     for item in order.items.exclude(variant=None):
-        ProductVariant.objects.filter(pk=item.variant_id).update(stock_quantity=F("stock_quantity") + item.quantity)
+        move_stock(item.variant_id, item.quantity, StockMovement.Reason.ORDER_CANCELLED, user=user, order=order)

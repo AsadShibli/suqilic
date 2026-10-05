@@ -21,6 +21,12 @@ from apps.core.admin_views import (
     SubscriberAdminViewSet,
     UploadView,
 )
+from apps.inventory.admin_views import (
+    PurchaseOrderAdminViewSet,
+    StockMovementAdminViewSet,
+    SupplierAdminViewSet,
+    VariantOptionsView,
+)
 from apps.orders.admin_views import DashboardStatsView, OrderAdminViewSet, RecentOrdersView
 from apps.storefront.admin_views import HeroBannerAdminViewSet, HomeSectionAdminViewSet
 
@@ -41,11 +47,15 @@ router.register("customers", CustomerAdminViewSet, basename="admin-customer")
 router.register("messages", ContactMessageAdminViewSet, basename="admin-message")
 router.register("subscribers", SubscriberAdminViewSet, basename="admin-subscriber")
 router.register("staff", StaffAdminViewSet, basename="admin-staff")
+router.register("suppliers", SupplierAdminViewSet, basename="admin-supplier")
+router.register("purchase-orders", PurchaseOrderAdminViewSet, basename="admin-purchase-order")
+router.register("stock-movements", StockMovementAdminViewSet, basename="admin-stock-movement")
 
 urlpatterns = [
     path("dashboard/stats/", DashboardStatsView.as_view(), name="admin-dashboard-stats"),
     path("dashboard/recent-orders/", RecentOrdersView.as_view(), name="admin-dashboard-recent-orders"),
     path("settings/", SiteSettingsAdminView.as_view(), name="admin-settings"),
     path("uploads/", UploadView.as_view(), name="admin-uploads"),
+    path("variants/", VariantOptionsView.as_view(), name="admin-variant-options"),
     *router.urls,
 ]

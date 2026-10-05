@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from apps.core.slugs import AutoSlugMixin
+from apps.inventory.services import set_stock
 
 from .models import (
     Collection,
@@ -96,6 +97,25 @@ class ProductVariantAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = ["id", "title", "sku", "price", "stock_quantity", "is_active", "position", "option_value_ids"]
+
+    # Stock changes go through the inventory ledger so every edit is recorded as an adjustment.
+    @transaction.atomic
+    def create(self, validated_data):
+        stock = validated_data.pop("stock_quantity", 0)
+        variant = super().create(validated_data)
+        if stock:
+            set_stock(variant.pk, stock, user=self.context["request"].user, note="Initial stock")
+            variant.refresh_from_db(fields=["stock_quantity"])
+        return variant
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        stock = validated_data.pop("stock_quantity", None)
+        variant = super().update(instance, validated_data)
+        if stock is not None:
+            set_stock(variant.pk, stock, user=self.context["request"].user)
+            variant.refresh_from_db(fields=["stock_quantity"])
+        return variant
 
     def validate_option_value_ids(self, values):
         product_id = self.context["view"].kwargs["product_pk"]

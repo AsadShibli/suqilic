@@ -9,6 +9,9 @@ import {
   Mail,
   Menu as MenuIcon,
   Package,
+  PackageCheck,
+  ArrowLeftRight,
+  Truck,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -47,11 +50,19 @@ const Messages = lazy(() => People().then((m) => ({ default: m.Messages })))
 const Subscribers = lazy(() => People().then((m) => ({ default: m.Subscribers })))
 const Staff = lazy(() => People().then((m) => ({ default: m.Staff })))
 const SiteSettings = lazy(() => import('./pages/SiteSettings'))
+const Inventory = () => import('./pages/Inventory')
+const Suppliers = lazy(() => Inventory().then((m) => ({ default: m.Suppliers })))
+const PurchaseOrders = lazy(() => Inventory().then((m) => ({ default: m.PurchaseOrders })))
+const PurchaseOrderDetail = lazy(() => Inventory().then((m) => ({ default: m.PurchaseOrderDetail })))
+const StockMovements = lazy(() => Inventory().then((m) => ({ default: m.StockMovements })))
 
 const NAV = [
   { to: '', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: 'orders', label: 'Orders', icon: ShoppingCart },
   { to: 'products', label: 'Products', icon: Package },
+  { to: 'purchase-orders', label: 'Purchase orders', icon: PackageCheck },
+  { to: 'stock', label: 'Stock movements', icon: ArrowLeftRight },
+  { to: 'suppliers', label: 'Suppliers', icon: Truck },
   { to: 'collections', label: 'Collections', icon: Layers },
   { to: 'tags', label: 'Tags', icon: Tag },
   { to: 'home', label: 'Home page', icon: Home },
@@ -136,6 +147,10 @@ export default function AdminApp() {
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="products" element={<Products />} />
               <Route path="products/:id" element={<ProductEdit />} />
+              <Route path="purchase-orders" element={<PurchaseOrders />} />
+              <Route path="purchase-orders/:id" element={<PurchaseOrderDetail />} />
+              <Route path="stock" element={<StockMovements />} />
+              <Route path="suppliers" element={<Suppliers />} />
               <Route path="collections" element={<Collections />} />
               <Route path="tags" element={<Tags />} />
               <Route path="home" element={<HomeSections />} />
